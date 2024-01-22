@@ -1,17 +1,78 @@
-import React, {useState, useEffect} from "react";
-import { Text, View, PermissionsAndroid, TouchableOpacity, Alert, Linking } from "react-native";
+import React, {useState} from "react";
+import { Text, View, PermissionsAndroid, TouchableOpacity, SafeAreaView, StyleSheet } from "react-native";
 import Geolocation from "@react-native-community/geolocation";
 import Coordinates from "./src/coordinates";
 import Plane from "./src/plane";
-import Distance from "./src/distance";
-import openMaps from "./src/openMaps";
+import DefineX0Y0 from "./src/defineX0Y0";
+import DefineVectorDirection from "./src/vector_direction";
+import DefineVectorModules from "./src/vector_modules";
+import Green from "./src/green";
 
+//Valores estão bem proximos
 const App = () => {
 
-//Passar para radiano e transformar (x, y, z), parametrizar de plano
 const [data, setData] = useState([]);
 const [initPoint, setInitPoint] = useState(null);
 const [vectorModules, setVectorModules] = useState([]);
+const [vectorDirection, setVectorDirection] = useState([]);
+const [X0Y0Points, setX0Y0Points] = useState([]);
+const [currentLocation, setCurrentLocation] = useState(null);
+
+const display = () => {
+
+  return (
+  <>
+
+    <Text style={Estilos.LetrasBotoes}>Latitude:  {currentLocation ? currentLocation.latitude : 'Loading'}</Text>
+    <Text style={Estilos.LetrasBotoes}>Longitude: {currentLocation ? currentLocation.longitude : 'Loading'}</Text>
+
+    <TouchableOpacity onPress={() => Permission()}>
+      <Text style={Estilos.LetrasBotoes}>Permisao</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => { const point = Coordinates(currentLocation.latitude, currentLocation.longitude); const newZ = Plane(...initPoint, point[0], point[1] ); point[2] = newZ; setData([...data, point]) }}>
+      <Text style={Estilos.LetrasBotoes}>Add Node</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => {setInitPoint(Coordinates(currentLocation.latitude, currentLocation.longitude))} }>
+      <Text style={Estilos.LetrasBotoes}>Add InitPoint</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => console.log(initPoint)}>
+      <Text style={Estilos.LetrasBotoes}>See Initial Point</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => console.log(data)}>
+      <Text style={Estilos.LetrasBotoes}>see Node</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => {setVectorModules(DefineVectorModules(data, initPoint))}}>
+      <Text style={Estilos.LetrasBotoes}>Define Vector Modules</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => {setVectorDirection(DefineVectorDirection(data, initPoint))}}>
+      <Text style={Estilos.LetrasBotoes}>Define Vector Directions</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => console.log(vectorModules)}>
+      <Text style={Estilos.LetrasBotoes}>see Vector Modules</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => console.log(vectorDirection)}>
+      <Text style={Estilos.LetrasBotoes}>see Vector Directions</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => {setX0Y0Points(DefineX0Y0(vectorDirection))}}>
+      <Text style={Estilos.LetrasBotoes}>see all the tail points</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => { console.log(Green(vectorDirection, X0Y0Points, vectorModules)) }}>
+      <Text style={Estilos.LetrasBotoes}>see Area</Text>
+    </TouchableOpacity>
+
+  </>);
+
+}
 
 const Permission = async () => {
   try {
@@ -36,26 +97,10 @@ const Permission = async () => {
   }
 };
 
-const Planification = (actualPoint, nextPoint) => {
 
-  nextPoint[0] = next
-
-
-}
-
-const DefineVectorModules = () => {
-
-  for(let i=0; i<data.lenght - 1; i++){
-
-        setVectorModules(...vectorModules, Math.sqrt( ( data[i + 1][0] - data[i][0] ) ** 2 + ( data[i + 1][1] - data[i][1]) ** 2 + ( data[i + 1][2] - data[i][2] ) ** 2 ))
-
-  }
+//Transformação para o novo plano.
 
 
-
-}
-
-const [currentLocation, setCurrentLocation] = useState(null)
 
 const getCurrentLocation = () => {
   Geolocation.getCurrentPosition(
@@ -72,40 +117,33 @@ const getCurrentLocation = () => {
 
 
 return (
-  <View>
+  <SafeAreaView>
+
+    <View style={Estilos.Main}>
   
-  <Text>App</Text>
-  <Text>Latitude: {currentLocation ? currentLocation.latitude : 'Loading'}</Text>
-  <Text>Longitude: {currentLocation ? currentLocation.longitude : 'Loading'}</Text>
+      {display()}
 
-  <TouchableOpacity onPress={() => Permission()}>
-    <Text>Permisao</Text>
-  </TouchableOpacity>
+    </View>
 
-  <TouchableOpacity onPress={() => {setData([...data, Coordinates(currentLocation.latitude, currentLocation.longitude)]) }}>
-    <Text>Add Node</Text>
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => {setInitPoint(Coordinates(currentLocation.latitude, currentLocation.longitude))} }>
-    <Text>Add InitPoint</Text>
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => console.log(initPoint)}>
-    <Text>See Initial Point</Text>
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => console.log(data)}>
-    <Text>see Node</Text>
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => console.log(Plane(...data[0], data[1][0], data[1][1])) }>
-    <Text>Coordinates</Text>
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => console.log(Distance(data[0], data[1][0], data[1][1], Plane(...data[0], data[1][0], data[1][1])))}>
-    <Text>Distance</Text>
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => openMaps(currentLocation.latitude, currentLocation.longitude)}>
-    <Text>Open Maps</Text>
-  </TouchableOpacity>
-
-  </View>
+  </SafeAreaView>
 )
 }
+
+const Estilos = StyleSheet.create({
+
+  Main: {
+    margin: 10,
+    backgroundColor: '#AAAAFF',
+    padding: 10,
+    borderWidth: 10,
+    borderColor: '#000000',
+  },
+
+  LetrasBotoes: {
+    fontSize: 20,
+    color: '#000000'
+  }
+
+})
 
 export default App;
