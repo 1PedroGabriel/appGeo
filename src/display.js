@@ -1,5 +1,6 @@
-import React, {useState} from "react";
-import { Text, PermissionsAndroid, TouchableOpacity, StyleSheet } from "react-native";
+import React, {useState, useEffect} from "react";
+import { Text, PermissionsAndroid, TouchableOpacity, StyleSheet, View } from "react-native"
+
 
 import Geolocation from "@react-native-community/geolocation";
 import Coordinates from "./coordinates";
@@ -10,6 +11,12 @@ import DefineVectorModules from "./vector_modules";
 import Green from "./green";
 
 export default function display() {
+
+    useEffect(() => {
+      //The user dont need to ask for permissions;
+
+      Permission();
+    }, []);
 
     const [data, setData] = useState([]);
     const [initPoint, setInitPoint] = useState(null);
@@ -33,7 +40,7 @@ export default function display() {
             },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            getCurrentLocation()
+            getCurrentLocation();
         
         } 
         } catch (err) {
@@ -46,96 +53,145 @@ export default function display() {
         position=> {
             const {latitude, longitude} = position.coords;
             setCurrentLocation({latitude, longitude});
+            getCurrentLocation();
         
             
         },
         error => console.log(error.message),
         {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
-        )
+        );
     }
   
+    const header = () => {
+      
+      return(<View style={style.Header}>
+            <Text style={style.HeaderLetters}>Latitude:  {currentLocation ? currentLocation.latitude.toFixed(4) +'°' : 'Loading'}</Text>
+            <Text style={style.HeaderLetters}>Longitude: {currentLocation ? currentLocation.longitude.toFixed(4) + '°': 'Loading'}</Text>
+            </View>);
+
+    }
+
     if(currentLocation) {
         return(<>
-  
 
-            <Text style={Estilos.LetrasBotoes}>Latitude:  {currentLocation ? currentLocation.latitude : 'Loading'}</Text>
-            <Text style={Estilos.LetrasBotoes}>Longitude: {currentLocation ? currentLocation.longitude : 'Loading'}</Text>
-        
-            <TouchableOpacity onPress={() => Permission()}>
-              <Text style={Estilos.LetrasBotoes}>Permisao</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => { const point = Coordinates(currentLocation.latitude, currentLocation.longitude); const newZ = Plane(...initPoint, point[0], point[1] ); point[2] = newZ; setData([...data, point]) }}>
-              <Text style={Estilos.LetrasBotoes}>Add Node</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => {setInitPoint(Coordinates(currentLocation.latitude, currentLocation.longitude))} }>
-              <Text style={Estilos.LetrasBotoes}>Add InitPoint</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => console.log(initPoint)}>
-              <Text style={Estilos.LetrasBotoes}>See Initial Point</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => console.log(data)}>
-              <Text style={Estilos.LetrasBotoes}>see Node</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => {setVectorModules(DefineVectorModules(data, initPoint))}}>
-              <Text style={Estilos.LetrasBotoes}>Define Vector Modules</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => {setVectorDirection(DefineVectorDirection(data, initPoint))}}>
-              <Text style={Estilos.LetrasBotoes}>Define Vector Directions</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => console.log(vectorModules)}>
-              <Text style={Estilos.LetrasBotoes}>see Vector Modules</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => console.log(vectorDirection)}>
-              <Text style={Estilos.LetrasBotoes}>see Vector Directions</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => {setX0Y0Points(DefineX0Y0(vectorDirection))}}>
-              <Text style={Estilos.LetrasBotoes}>see all the tail points</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity onPress={() => { console.log(Green(vectorDirection, X0Y0Points, vectorModules)) }}>
-              <Text style={Estilos.LetrasBotoes}>see Area</Text>
-            </TouchableOpacity>
+            <View style = {{backgroundColor: '#391959'}}>
+            {header()}
+            </View>
+
+            <View style={{flexDirection: 'column', marginTop:30}}>
+
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => {setInitPoint(Coordinates(currentLocation.latitude, currentLocation.longitude))} }>
+                  <Text style={style.ButtonLetters}>Add InitPoint</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => { const point = Coordinates(currentLocation.latitude, currentLocation.longitude); const newZ = Plane(...initPoint, point[0], point[1] ); point[2] = newZ; setData([...data, point]) }}>
+                  <Text style={style.ButtonLetters}>Add Node</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => console.log(initPoint)}>
+                  <Text style={style.ButtonLetters}>See Initial Point</Text>
+                </TouchableOpacity>
+              </View>
+            
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => console.log(data)}>
+                  <Text style={style.ButtonLetters}>see Node</Text>
+                </TouchableOpacity>
+              </View>
+            
+            
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => {setVectorModules(DefineVectorModules(data, initPoint))}}>
+                  <Text style={style.ButtonLetters}>Define Vector Modules</Text>
+                </TouchableOpacity>
+              </View>
+  
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => {setVectorDirection(DefineVectorDirection(data, initPoint))}}>
+                  <Text style={style.ButtonLetters}>Define Vector Directions</Text>
+                </TouchableOpacity>
+              </View>
+  
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => console.log(vectorModules)}>
+                  <Text style={style.ButtonLetters}>see Vector Modules</Text>
+                </TouchableOpacity>
+              </View>
+            
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => console.log(vectorDirection)}>
+                  <Text style={style.ButtonLetters}>see Vector Directions</Text>
+                </TouchableOpacity>
+              </View>
+            
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => {setX0Y0Points(DefineX0Y0(vectorDirection))}}>
+                  <Text style={style.ButtonLetters}>see all the tail points</Text>
+                </TouchableOpacity>
+              </View>
+  
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity style={style.Buttons} onPress={() => { console.log(Green(vectorDirection, X0Y0Points, vectorModules)) }}>
+                  <Text style={style.ButtonLetters}>see Area</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
         
           </>);
 
     }  
 
     
-    return( <>
-        <Text style={Estilos.LetrasBotoes}>Latitude:  {currentLocation ? currentLocation.latitude : 'Loading'}</Text>
-        <Text style={Estilos.LetrasBotoes}>Longitude: {currentLocation ? currentLocation.longitude : 'Loading'}</Text>
-    
-        <TouchableOpacity onPress={() => Permission()}>
-          <Text style={Estilos.LetrasBotoes}>Permisao</Text>
-        </TouchableOpacity>
-        </>); 
+    return(<>{header()}</>); 
     
 
 }
 
 
-const Estilos = StyleSheet.create({
-
-    Main: {
-      margin: 10,
-      backgroundColor: '#AAAAFF',
-      padding: 10,
-      borderWidth: 10,
-      borderColor: '#000000',
+const style = StyleSheet.create({
+    
+    Header: {
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 50,
+      marginBottom: 30,
+      display:'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      backgroundColor: '#391959'
+      
     },
   
-    LetrasBotoes: {
+    HeaderLetters: {
+      fontSize: 30,
+      color: '#ACB7F2',
+    },
+
+    ButtonLetters: {
+      textAlign: 'center',
+      color: '#ACB7F2',
       fontSize: 20,
-      color: '#000000'
+    },
+    
+    Buttons: {
+
+      width: 200,
+      height: 100,
+      margin: 'auto',
+      marginTop: 20,
+      justifyContent: 'center',
+      backgroundColor: '#BF826B',
+      borderColor: '#391959', 
+      borderWidth: 10
+
+
     }
   
   })

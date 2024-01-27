@@ -1,34 +1,23 @@
 import React from "react";
-import { SafeAreaView, View, StyleSheet } from "react-native";
+import { SafeAreaView, View, StyleSheet, ScrollView } from "react-native";
 import display from "./src/display";
-
 
 //Valores estão bem proximos
 const App = () => {
 
 return (
-  <SafeAreaView>
+  <SafeAreaView style={{flex: 1}}>
 
-    <View style={Estilos.Main}>
-  
+    <ScrollView>
+    <View style={{backgroundColor: '#44308C'}}>
+
       {display()}
 
     </View>
+    </ScrollView>
 
   </SafeAreaView>
 )
 }
-
-const Estilos = StyleSheet.create({
-
-  Main: {
-    margin: 10,
-    backgroundColor: '#AAAAFF',
-    padding: 10,
-    borderWidth: 10,
-    borderColor: '#000000',
-  },
-
-})
 
 export default App;
